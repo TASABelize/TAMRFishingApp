@@ -8,12 +8,14 @@
   <meta name="theme-color" content="#111111">
   <style>
     :root {
-      --bg: #ffffff;
+      --bg: #e6f4ff;      /* light blue page background */
       --text: #111111;
-      --muted: #e6e6e6;
+      --muted: #dcdcdc;
       --accent: #222222;
       --profit: #0a8f3c;
       --loss: #c01818;
+      --input-bg: #f2f2f2; /* light grey input background */
+      --card-bg: #ffffff;  /* white cards for contrast */
     }
     html, body { height: 100%; }
     body {
@@ -25,14 +27,14 @@
       line-height: 1.4;
       font-size: 18px; /* larger for readability */
     }
-    .app { max-width: 840px; margin: 0 auto; }
+    .app { max-width: 900px; margin: 0 auto; }
     .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .splash { text-align: left; display:flex; align-items:center; gap:12px; }
-    .logo { width: 140px; height: auto; }
-    .powered { font-size: 16px; color: #333; font-weight: 600; letter-spacing: .3px; }
-    h1 { font-size: 28px; margin: 8px 0 16px 0; text-align: left; }
+    .splash { text-align:left; display:flex; align-items:center; gap:12px; }
+    .logo { width: 140px; height:auto; }
+    .powered { font-size: 16px; color:#333; font-weight:600; letter-spacing:.3px; }
+    h1 { font-size: 28px; margin: 8px 0 16px 0; text-align:left; }
     .card {
-      background: #fff;
+      background: var(--card-bg);
       border: 1px solid var(--muted);
       padding: 16px;
       border-radius: 14px;
@@ -40,14 +42,18 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     }
     .card h3 { margin: 0 0 8px 0; font-size: 20px; }
-    label { display: block; font-weight: 600; margin-top: 8px; }
+    label { display:block; font-weight:600; margin-top: 8px; }
     input[type="number"], input[type="date"], select, input[type="text"] {
-      width: 100%; padding: 12px; margin-top: 6px;
-      border-radius: 10px; border: 1px solid var(--muted);
-      background: #fff; color: var(--text); font-size: 18px;
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--muted);
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 18px;
     }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .row-3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .row-4 { display:grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap: 10px; align-items:end; }
     .actions { position: sticky; bottom: 0; background: rgba(255,255,255,0.96); padding: 12px 0; backdrop-filter: blur(6px); }
     button {
@@ -59,13 +65,14 @@
     .result {
       padding: 12px 16px; border-radius: 12px; font-size: 22px; font-weight: 800; margin-top: 8px; border: 1px solid var(--muted);
     }
-    .result.profit { color: var(--profit); } .result.loss { color: var(--loss); }
-    .muted { color: #444; font-size: 16px; }
+    .result.profit { color: var(--profit); }
+    .result.loss { color: var(--loss); }
+    .muted { color:#444; font-size:16px; }
     .report { background:#fafafa; border:1px solid var(--muted); border-radius:12px; padding:12px; }
     .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-    .small { font-size: 14px; }
-    table { width:100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid var(--muted); padding: 8px; text-align:left; font-size:16px; }
+    .small { font-size:14px; }
+    table { width:100%; border-collapse: collapse; background:var(--card-bg); }
+    th, td { border-bottom:1px solid var(--muted); padding:8px; text-align:left; font-size:16px; }
     .nowrap { white-space: nowrap; }
     .lang { display:flex; gap:8px; align-items:center; }
     select#langSel { width:auto; padding:10px; }
@@ -136,28 +143,28 @@
 
     <div class="card">
       <h3 id="t_sales">Sales</h3>
-      <!-- Per-species qty x price calculators -->
+      <!-- Cleaned rows: Species label + Qty, Price, Total inputs; no stray 'Quantity' labels -->
       <div class="row-4">
-        <div><label id="t_lobster">Lobster</label><input type="number" id="lobster_qty" placeholder="Qty" step="0.01" min="0"></div>
-        <div><input type="number" id="lobster_qty_dup" placeholder="Qty" step="0.01" min="0" style="display:none"></div>
-        <div><label id="t_price">Price</label><input type="number" id="lobster_price" placeholder="Price" step="0.01" min="0"></div>
-        <div><label id="t_total">Total</label><input type="number" id="lobster_total" placeholder="0.00" step="0.01" min="0" readonly></div>
+        <div><label id="t_lobster">Lobster</label></div>
+        <div><input type="number" id="lobster_qty" placeholder="Qty" step="0.01" min="0"></div>
+        <div><input type="number" id="lobster_price" placeholder="Price" step="0.01" min="0"></div>
+        <div><input type="number" id="lobster_total" placeholder="0.00" step="0.01" min="0" readonly></div>
       </div>
       <div class="row-4">
-        <div><label id="t_conch">Conch</label><input type="number" id="conch_qty" placeholder="Qty" step="0.01" min="0"></div>
-        <div><input type="number" id="conch_qty_dup" placeholder="Qty" step="0.01" min="0" style="display:none"></div>
+        <div><label id="t_conch">Conch</label></div>
+        <div><input type="number" id="conch_qty" placeholder="Qty" step="0.01" min="0"></div>
         <div><input type="number" id="conch_price" placeholder="Price" step="0.01" min="0"></div>
         <div><input type="number" id="conch_total" placeholder="0.00" step="0.01" min="0" readonly></div>
       </div>
       <div class="row-4">
-        <div><label id="t_finfish">Fin fish</label><input type="number" id="finfish_qty" placeholder="Qty" step="0.01" min="0"></div>
-        <div><input type="number" id="finfish_qty_dup" placeholder="Qty" step="0.01" min="0" style="display:none"></div>
+        <div><label id="t_finfish">Fin fish</label></div>
+        <div><input type="number" id="finfish_qty" placeholder="Qty" step="0.01" min="0"></div>
         <div><input type="number" id="finfish_price" placeholder="Price" step="0.01" min="0"></div>
         <div><input type="number" id="finfish_total" placeholder="0.00" step="0.01" min="0" readonly></div>
       </div>
       <div class="row-4">
-        <div><label id="t_otherfish">Other fish</label><input type="number" id="otherfish_qty" placeholder="Qty" step="0.01" min="0"></div>
-        <div><input type="number" id="otherfish_qty_dup" placeholder="Qty" step="0.01" min="0" style="display:none"></div>
+        <div><label id="t_otherfish">Other fish</label></div>
+        <div><input type="number" id="otherfish_qty" placeholder="Qty" step="0.01" min="0"></div>
         <div><input type="number" id="otherfish_price" placeholder="Price" step="0.01" min="0"></div>
         <div><input type="number" id="otherfish_total" placeholder="0.00" step="0.01" min="0" readonly></div>
       </div>
@@ -224,7 +231,6 @@
         costs: "Costs", fuel: "Fuel", gear: "Fishing gear",
         assistants: "Assistants", other_costs: "Other costs",
         sales: "Sales", lobster: "Lobster", conch: "Conch", finfish: "Fin fish", otherfish: "Other fish",
-        qty: "Quantity", price: "Price", total: "Total",
         calc_hint: "Enter values and tap Calculate.",
         btn_calc: "Calculate", btn_clear: "Clear",
         btn_pdf: "Save as PDF", btn_jpeg: "Save as JPEG",
@@ -232,7 +238,7 @@
         log: "Trip Log (local)", log_note: "Saved on this device only.",
         tbl_date:"Date", tbl_area:"Area", tbl_costs:"Costs", tbl_sales:"Sales", tbl_profit:"Profit", tbl_actions:"Actions",
         offline: "No internet required after first install. Data stays on your device unless you use Submit/Share.",
-        language: "Language", view:"Load", del:"Delete", export_log:"Export Log CSV", clear_log:"Clear Log"
+        language: "Language", view:"Load", del:"Delete"
       },
       es: {
         title: "Calculadora de Viaje de Pesca",
@@ -242,7 +248,6 @@
         costs: "Costos", fuel: "Combustible", gear: "Equipo de pesca",
         assistants: "Asistentes", other_costs: "Otros costos",
         sales: "Ingresos", lobster: "Langosta", conch: "Caracol", finfish: "Peces", otherfish: "Otros peces",
-        qty: "Cantidad", price: "Precio", total: "Total",
         calc_hint: "Ingrese valores y toque Calcular.",
         btn_calc: "Calcular", btn_clear: "Limpiar",
         btn_pdf: "Guardar como PDF", btn_jpeg: "Guardar como JPEG",
@@ -250,7 +255,7 @@
         log: "Registro de viajes (local)", log_note: "Guardado solo en este dispositivo.",
         tbl_date:"Fecha", tbl_area:"Área", tbl_costs:"Costos", tbl_sales:"Ingresos", tbl_profit:"Ganancia", tbl_actions:"Acciones",
         offline: "No se requiere internet después de la primera instalación. Los datos permanecen en su dispositivo a menos que use Enviar/Compartir.",
-        language: "Idioma", view:"Cargar", del:"Eliminar", export_log:"Exportar Registro CSV", clear_log:"Borrar Registro"
+        language: "Idioma", view:"Cargar", del:"Eliminar"
       }
     };
     function setLang(lang){
@@ -262,41 +267,38 @@
       $('t_costs').textContent=t.costs; $('t_fuel').textContent=t.fuel; $('t_gear').textContent=t.gear;
       $('t_assistants').textContent=t.assistants; $('t_other_costs').textContent=t.other_costs;
       $('t_sales').textContent=t.sales; $('t_lobster').textContent=t.lobster; $('t_conch').textContent=t.conch; $('t_finfish').textContent=t.finfish; $('t_otherfish').textContent=t.otherfish;
-      document.querySelectorAll('label#t_qty, label#t_price, label#t_total').forEach(()=>{});
       $('t_lang').textContent=t.language;
       $('result').textContent=t.calc_hint;
-      $('calcBtn').textContent=t.btn_calc;
-      $('clearBtn').textContent=t.btn_clear;
-      $('pdfBtn').textContent=t.btn_pdf;
-      $('jpegBtn').textContent=t.btn_jpeg;
-      $('submitBtn').textContent=t.btn_submit;
-      $('csvBtn').textContent=t.btn_csv;
-      $('saveTripBtn').textContent=t.btn_save;
+      $('calcBtn').textContent=t.btn_calc; $('clearBtn').textContent=t.btn_clear;
+      $('pdfBtn').textContent=t.btn_pdf; $('jpegBtn').textContent=t.btn_jpeg;
+      $('submitBtn').textContent=t.btn_submit; $('csvBtn').textContent=t.btn_csv; $('saveTripBtn').textContent=t.btn_save;
       $('t_log').textContent=t.log; $('t_log_note').textContent=t.log_note;
       $('t_tbl_date').textContent=t.tbl_date; $('t_tbl_area').textContent=t.tbl_area; $('t_tbl_costs').textContent=t.tbl_costs;
       $('t_tbl_sales').textContent=t.tbl_sales; $('t_tbl_profit').textContent=t.tbl_profit; $('t_tbl_actions').textContent=t.tbl_actions;
       $('t_offline').textContent=t.offline;
-      $('exportLogBtn').textContent=t.export_log; $('clearLogBtn').textContent=t.clear_log;
-      // Update column labels in species rows
-      document.querySelectorAll('#t_qty').forEach(el=>el.textContent=t.qty);
-      document.querySelectorAll('#t_price').forEach(el=>el.textContent=t.price);
-      document.querySelectorAll('#t_total').forEach(el=>el.textContent=t.total);
+      // update placeholders for Qty/Price/Total per language
+      const placeholders = lang==='es' ? {qty:'Cant.', price:'Precio', total:'Total'} : {qty:'Qty', price:'Price', total:'0.00'};
+      [['lobster','conch','finfish','otherfish']].flat().forEach(sp=>{
+        $(sp+'_qty').placeholder = placeholders.qty;
+        $(sp+'_price').placeholder = placeholders.price;
+        $(sp+'_total').placeholder = placeholders.total;
+      });
     }
 
-    // Species total calculation
-    function bindCalcPair(qId, pId, totId){
-      const q=$(qId), p=$(pId), tot=$(totId);
-      const recalc=()=>{ tot.value = fmt(toNum(q.value)*toNum(p.value)); updateTotals(); };
-      q.addEventListener('input', recalc); p.addEventListener('input', recalc);
-      recalc();
-    }
-
+    // per-species calculators
     function updateTotals(){
       $('lobster_total').value = fmt(toNum($('lobster_qty').value)*toNum($('lobster_price').value));
       $('conch_total').value = fmt(toNum($('conch_qty').value)*toNum($('conch_price').value));
       $('finfish_total').value = fmt(toNum($('finfish_qty').value)*toNum($('finfish_price').value));
       $('otherfish_total').value = fmt(toNum($('otherfish_qty').value)*toNum($('otherfish_price').value));
     }
+    ['lobster','conch','finfish','otherfish'].forEach(sp=>{
+      ['qty','price'].forEach(kind=>{
+        document.addEventListener('input', (e)=>{
+          if(e.target && e.target.id===`${sp}_${kind}`){ updateTotals(); }
+        });
+      });
+    });
 
     function gather(){
       updateTotals();
@@ -328,10 +330,10 @@
       ['start','end','area','fuel','gear','assistants','other',
        'lobster_qty','lobster_price','lobster_total',
        'conch_qty','conch_price','conch_total',
-       'finfish_qty','finfish_price','finfish_total',
-       'otherfish_qty','otherfish_price','otherfish_total'].forEach(id=>{
-        const el=$(id); if(!el) return;
-        if (el.tagName==='SELECT') el.selectedIndex=0; else el.value='';
+        'finfish_qty','finfish_price','finfish_total',
+        'otherfish_qty','otherfish_price','otherfish_total'].forEach(id=>{
+          const el=$(id); if(!el) return;
+          if (el.tagName==='SELECT') el.selectedIndex=0; else el.value='';
       });
       $('result').textContent = i18n[$('langSel').value].calc_hint;
       $('result').className='result muted';
@@ -345,24 +347,23 @@
     function deleteFromLog(idx){ const arr=loadLog(); arr.splice(idx,1); saveLog(arr); renderLog(); }
     function renderLog(){
       const tbody=$('logTable').querySelector('tbody'); tbody.innerHTML='';
-      const arr=loadLog();
-      const lang=$('langSel').value, t=i18n[lang];
+      const arr=loadLog(); const lang=$('langSel').value, t=i18n[lang];
       arr.forEach((e,idx)=>{
         const tr=document.createElement('tr');
-        tr.innerHTML=`
+        tr.innerHTML = `
           <td class="nowrap">${e.start||''} → ${e.end||''}</td>
           <td>${e.area||''}</td>
-          <td>$${fmt(e.costs)}</td>
-          <td>$${fmt(e.sales)}</td>
-          <td style="color:${e.profit>=0?'var(--profit)':'var(--loss)'}">$${fmt(e.profit)}</td>
+          <td>$${fmt(e.fuel + e.gear + e.assistants + e.other)}</td>
+          <td>$${fmt(e.lobster_total + e.conch_total + e.finfish_total + e.otherfish_total)}</td>
+          <td style="color:${(e.profit>=0)?'var(--profit)':'var(--loss)'}">$${fmt(e.profit)}</td>
           <td>
             <button class="secondary" data-load="${idx}" style="width:auto;padding:8px 10px;margin-right:6px">${t.view}</button>
             <button class="secondary" data-del="${idx}" style="width:auto;padding:8px 10px">${t.del}</button>
           </td>`;
         tbody.appendChild(tr);
       });
-      tbody.querySelectorAll('button[data-del]').forEach(b=>b.addEventListener('click', e=>deleteFromLog(Number(b.dataset.del))));
-      tbody.querySelectorAll('button[data-load]').forEach(b=>b.addEventListener('click', e=>loadEntry(Number(b.dataset.load))));
+      tbody.querySelectorAll('button[data-del]').forEach(b=>b.addEventListener('click', ()=>deleteFromLog(Number(b.dataset.del))));
+      tbody.querySelectorAll('button[data-load]').forEach(b=>b.addEventListener('click', ()=>loadEntry(Number(b.dataset.load))));
     }
     function loadEntry(idx){
       const e=loadLog()[idx]; if(!e) return;
@@ -420,8 +421,8 @@
 
     function saveTrip(){
       const d=calculate();
-      const entry={...d, costs:d.fuel+d.gear+d.assistants+d.other, sales:d.lobster_total+d.conch_total+d.finfish_total+d.otherfish_total, ts:Date.now()};
-      addToLog(entry);
+      const entry={...d, ts:Date.now()};
+      const arr=loadLog(); arr.unshift(entry); saveLog(arr); renderLog();
       alert('Trip saved locally.');
     }
 
@@ -436,7 +437,9 @@
         d.conch_qty,d.conch_price,d.conch_total,
         d.finfish_qty,d.finfish_price,d.finfish_total,
         d.otherfish_qty,d.otherfish_price,d.otherfish_total,
-        d.costs,d.sales,d.profit].join(','));
+        (d.fuel+d.gear+d.assistants+d.other),
+        (d.lobster_total+d.conch_total+d.finfish_total+d.otherfish_total),
+        d.profit].join(','));
       const csv=[headers.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv'});
       const url=URL.createObjectURL(blob);
@@ -444,7 +447,7 @@
       URL.revokeObjectURL(url);
     }
 
-    function clearLog(){ if(confirm('Clear all saved trips on this device?')){ saveLog([]); renderLog(); } }
+    function clearLog(){ if(confirm('Clear all saved trips on this device?')){ localStorage.removeItem('tasa_trips_v1'); renderLog(); } }
 
     // PDF/JPEG
     async function savePDF(){
@@ -479,17 +482,11 @@
     $('exportLogBtn').addEventListener('click', exportLogCSV);
     $('clearLogBtn').addEventListener('click', clearLog);
 
-    // per-species calculators
-    bindCalcPair('lobster_qty','lobster_price','lobster_total');
-    bindCalcPair('conch_qty','conch_price','conch_total');
-    bindCalcPair('finfish_qty','finfish_price','finfish_total');
-    bindCalcPair('otherfish_qty','otherfish_price','otherfish_total');
-
     // lang selector
     const langSel=$('langSel');
     const savedLang=localStorage.getItem('tasa_lang')||'en';
     langSel.value=savedLang; setLang(savedLang);
-    langSel.addEventListener('change', e=>{ localStorage.setItem('tasa_lang', langSel.value); setLang(langSel.value); });
+    langSel.addEventListener('change', ()=>{ localStorage.setItem('tasa_lang', langSel.value); setLang(langSel.value); });
 
     // Render log at start
     renderLog();
