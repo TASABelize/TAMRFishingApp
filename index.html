@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fishing Trip Calculator</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#111111">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #e6e6e6;
+      --accent: #222222;
+      --profit: #0a8f3c;
+      --loss: #c01818;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
+      line-height: 1.4;
+      font-size: 18px; /* larger for readability */
+    }
+    .app { max-width: 840px; margin: 0 auto; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .splash { text-align: left; display:flex; align-items:center; gap:12px; }
+    .logo { width: 140px; height: auto; }
+    .powered { font-size: 16px; color: #333; font-weight: 600; letter-spacing: .3px; }
+    h1 { font-size: 28px; margin: 8px 0 16px 0; text-align: left; }
+    .card {
+      background: #fff;
+      border: 1px solid var(--muted);
+      padding: 16px;
+      border-radius: 14px;
+      margin: 16px 0;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .card h3 { margin: 0 0 8px 0; font-size: 20px; }
+    label { display: block; font-weight: 600; margin-top: 8px; }
+    input[type="number"], input[type="date"], select, input[type="text"] {
+      width: 100%; padding: 12px; margin-top: 6px;
+      border-radius: 10px; border: 1px solid var(--muted);
+      background: #fff; color: var(--text); font-size: 18px;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row-3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .row-4 { display:grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap: 10px; align-items:end; }
+    .actions { position: sticky; bottom: 0; background: rgba(255,255,255,0.96); padding: 12px 0; backdrop-filter: blur(6px); }
+    button {
+      width: 100%; padding: 14px 16px; border-radius: 12px;
+      border: 1px solid var(--accent); background: var(--accent);
+      color: #fff; font-weight: 700; font-size: 18px; cursor: pointer;
+    }
+    button.secondary { background: #fff; color: var(--accent); }
+    .result {
+      padding: 12px 16px; border-radius: 12px; font-size: 22px; font-weight: 800; margin-top: 8px; border: 1px solid var(--muted);
+    }
+    .result.profit { color: var(--profit); } .result.loss { color: var(--loss); }
+    .muted { color: #444; font-size: 16px; }
+    .report { background:#fafafa; border:1px solid var(--muted); border-radius:12px; padding:12px; }
+    .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    .small { font-size: 14px; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid var(--muted); padding: 8px; text-align:left; font-size:16px; }
+    .nowrap { white-space: nowrap; }
+    .lang { display:flex; gap:8px; align-items:center; }
+    select#langSel { width:auto; padding:10px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="splash">
+        <img src="icons/logo.png" alt="TASA Logo" class="logo">
+        <div class="powered">Powered by TASA</div>
+      </div>
+      <div class="lang">
+        <label for="langSel" id="t_lang">Language</label>
+        <select id="langSel">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
+      </div>
+    </div>
+
+    <h1 id="t_title">Fishing Trip Calculator</h1>
+
+    <div class="card">
+      <h3 id="t_trip">Trip Details</h3>
+      <div class="row">
+        <div>
+          <label for="start" id="t_start">Start date</label>
+          <input type="date" id="start">
+        </div>
+        <div>
+          <label for="end" id="t_end">Return date</label>
+          <input type="date" id="end">
+        </div>
+      </div>
+      <label for="area" id="t_area">Managed Access</label>
+      <select id="area">
+        <option value="" selected disabled id="t_sel_area">Select Area</option>
+        <option>Area 1</option><option>Area 2</option><option>Area 3</option>
+        <option>Area 4</option><option>Area 5</option><option>Area 6</option>
+        <option>Area 7</option><option>Area 8</option><option>Area 9</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <h3 id="t_costs">Costs</h3>
+      <div class="row">
+        <div>
+          <label for="fuel" id="t_fuel">Fuel</label>
+          <input type="number" id="fuel" placeholder="0.00" step="0.01" min="0">
+        </div>
+        <div>
+          <label for="gear" id="t_gear">Fishing gear</label>
+          <input type="number" id="gear" placeholder="0.00" step="0.01" min="0">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="assistants" id="t_assistants">Assistants</label>
+          <input type="number" id="assistants" placeholder="0.00" step="0.01" min="0">
+        </div>
+        <div>
+          <label for="other" id="t_other_costs">Other costs</label>
+          <input type="number" id="other" placeholder="0.00" step="0.01" min="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 id="t_sales">Sales</h3>
+      <!-- Per-species qty x price calculators -->
+      <div class="row-4">
+        <div><label id="t_lobster">Lobster</label><input type="number" id="lobster_qty" placeholder="Qty" step="0.01" min="0"></div>
+        <div><label id="t_qty">Quantity</label><input type="number" id="lobster_qty_dup" placeholder="Qty" step="0.01" min="0" style="display:none"></div>
+        <div><label id="t_price">Price</label><input type="number" id="lobster_price" placeholder="Price" step="0.01" min="0"></div>
+        <div><label id="t_total">Total</label><input type="number" id="lobster_total" placeholder="0.00" step="0.01" min="0" readonly></div>
+      </div>
+      <div class="row-4">
+        <div><label id="t_conch">Conch</label><input type="number" id="conch_qty" placeholder="Qty" step="0.01" min="0"></div>
+        <div><input type="number" id="conch_qty_dup" placeholder="Qty" step="0.01" min="0" style="display:none"></div>
+        <div><input type="number" id="conch_price" placeholder="Price" step="0.01" min="0"></div>
+        <div><input type="number" id="conch_total" placeholder="0.00" step="0.01" min="0" readonly></div>
+      </div>
+      <div class="row-4">
+        <div><label id="t_finfish">Fin fish</label><input type="number" id="finfish_qty" placeholder="Qty" step="0.01" min="0"></div>
+        <div><input type="number" id="finfish_qty_dup" placeholder="Qty" step="0.01" min="0" style="display:none"></div>
+        <div><input type="number" id="finfish_price" placeholder="Price" step="0.01" min="0"></div>
+        <div><input type="number" id="finfish_total" placeholder="0.00" step="0.01" min="0" readonly></div>
+      </div>
+      <div class="row-4">
+        <div><label id="t_otherfish">Other fish</label><input type="number" id="otherfish_qty" placeholder="Qty" step="0.01" min="0"></div>
+        <div><input type="number" id="otherfish_qty_dup" placeholder="Qty" step="0.01" min="0" style="display:none"></div>
+        <div><input type="number" id="otherfish_price" placeholder="Price" step="0.01" min="0"></div>
+        <div><input type="number" id="otherfish_total" placeholder="0.00" step="0.01" min="0" readonly></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="result" class="result muted">Enter values and tap Calculate.</div>
+      <div class="row" style="margin-top:10px">
+        <button id="calcBtn">Calculate</button>
+        <button class="secondary" id="clearBtn">Clear</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="secondary" id="pdfBtn">Save as PDF</button>
+        <button class="secondary" id="jpegBtn">Save as JPEG</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button id="submitBtn">Submit</button>
+        <button class="secondary" id="csvBtn">Download CSV</button>
+        <button class="secondary" id="saveTripBtn">Save Trip</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 id="t_log">Trip Log (local)</h3>
+      <div class="row" style="margin:8px 0">
+        <button class="secondary" id="exportLogBtn">Export Log CSV</button>
+        <button class="secondary" id="clearLogBtn">Clear Log</button>
+      </div>
+      <div class="small muted" id="t_log_note">Saved on this device only.</div>
+      <div style="overflow-x:auto">
+        <table id="logTable">
+          <thead>
+            <tr>
+              <th id="t_tbl_date" class="nowrap">Date</th>
+              <th id="t_tbl_area">Area</th>
+              <th id="t_tbl_costs">Costs</th>
+              <th id="t_tbl_sales">Sales</th>
+              <th id="t_tbl_profit">Profit</th>
+              <th id="t_tbl_actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="small muted" id="t_offline">No internet required after first install. Data stays on your device unless you use Submit/Share.</p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const toNum = (v) => Number(v || 0);
+    const fmt = (n) => (isNaN(n) ? '0.00' : Number(n).toFixed(2));
+
+    // i18n
+    const i18n = {
+      en: {
+        title: "Fishing Trip Calculator",
+        trip: "Trip Details",
+        start: "Start date", end: "Return date",
+        area: "Managed Access", sel_area: "Select Area",
+        costs: "Costs", fuel: "Fuel", gear: "Fishing gear",
+        assistants: "Assistants", other_costs: "Other costs",
+        sales: "Sales", lobster: "Lobster", conch: "Conch", finfish: "Fin fish", otherfish: "Other fish",
+        qty: "Quantity", price: "Price", total: "Total",
+        calc_hint: "Enter values and tap Calculate.",
+        btn_calc: "Calculate", btn_clear: "Clear",
+        btn_pdf: "Save as PDF", btn_jpeg: "Save as JPEG",
+        btn_submit: "Submit", btn_csv: "Download CSV", btn_save: "Save Trip",
+        log: "Trip Log (local)", log_note: "Saved on this device only.",
+        tbl_date:"Date", tbl_area:"Area", tbl_costs:"Costs", tbl_sales:"Sales", tbl_profit:"Profit", tbl_actions:"Actions",
+        offline: "No internet required after first install. Data stays on your device unless you use Submit/Share.",
+        language: "Language", view:"Load", del:"Delete", export_log:"Export Log CSV", clear_log:"Clear Log"
+      },
+      es: {
+        title: "Calculadora de Viaje de Pesca",
+        trip: "Detalles del viaje",
+        start: "Fecha de salida", end: "Fecha de regreso",
+        area: "Acceso Manejado", sel_area: "Seleccione Área",
+        costs: "Costos", fuel: "Combustible", gear: "Equipo de pesca",
+        assistants: "Asistentes", other_costs: "Otros costos",
+        sales: "Ingresos", lobster: "Langosta", conch: "Caracol", finfish: "Peces", otherfish: "Otros peces",
+        qty: "Cantidad", price: "Precio", total: "Total",
+        calc_hint: "Ingrese valores y toque Calcular.",
+        btn_calc: "Calcular", btn_clear: "Limpiar",
+        btn_pdf: "Guardar como PDF", btn_jpeg: "Guardar como JPEG",
+        btn_submit: "Enviar", btn_csv: "Descargar CSV", btn_save: "Guardar viaje",
+        log: "Registro de viajes (local)", log_note: "Guardado solo en este dispositivo.",
+        tbl_date:"Fecha", tbl_area:"Área", tbl_costs:"Costos", tbl_sales:"Ingresos", tbl_profit:"Ganancia", tbl_actions:"Acciones",
+        offline: "No se requiere internet después de la primera instalación. Los datos permanecen en su dispositivo a menos que use Enviar/Compartir.",
+        language: "Idioma", view:"Cargar", del:"Eliminar", export_log:"Exportar Registro CSV", clear_log:"Borrar Registro"
+      }
+    };
+    function setLang(lang){
+      const t=i18n[lang];
+      $('t_title').textContent=t.title;
+      $('t_trip').textContent=t.trip;
+      $('t_start').textContent=t.start; $('t_end').textContent=t.end;
+      $('t_area').textContent=t.area; $('t_sel_area').textContent=t.sel_area;
+      $('t_costs').textContent=t.costs; $('t_fuel').textContent=t.fuel; $('t_gear').textContent=t.gear;
+      $('t_assistants').textContent=t.assistants; $('t_other_costs').textContent=t.other_costs;
+      $('t_sales').textContent=t.sales; $('t_lobster').textContent=t.lobster; $('t_conch').textContent=t.conch; $('t_finfish').textContent=t.finfish; $('t_otherfish').textContent=t.otherfish;
+      document.querySelectorAll('label#t_qty, label#t_price, label#t_total').forEach(()=>{});
+      $('t_lang').textContent=t.language;
+      $('result').textContent=t.calc_hint;
+      $('calcBtn').textContent=t.btn_calc;
+      $('clearBtn').textContent=t.btn_clear;
+      $('pdfBtn').textContent=t.btn_pdf;
+      $('jpegBtn').textContent=t.btn_jpeg;
+      $('submitBtn').textContent=t.btn_submit;
+      $('csvBtn').textContent=t.btn_csv;
+      $('saveTripBtn').textContent=t.btn_save;
+      $('t_log').textContent=t.log; $('t_log_note').textContent=t.log_note;
+      $('t_tbl_date').textContent=t.tbl_date; $('t_tbl_area').textContent=t.tbl_area; $('t_tbl_costs').textContent=t.tbl_costs;
+      $('t_tbl_sales').textContent=t.tbl_sales; $('t_tbl_profit').textContent=t.tbl_profit; $('t_tbl_actions').textContent=t.tbl_actions;
+      $('t_offline').textContent=t.offline;
+      $('exportLogBtn').textContent=t.export_log; $('clearLogBtn').textContent=t.clear_log;
+      // Update column labels in species rows
+      document.querySelectorAll('#t_qty').forEach(el=>el.textContent=t.qty);
+      document.querySelectorAll('#t_price').forEach(el=>el.textContent=t.price);
+      document.querySelectorAll('#t_total').forEach(el=>el.textContent=t.total);
+    }
+
+    // Species total calculation
+    function bindCalcPair(qId, pId, totId){
+      const q=$(qId), p=$(pId), tot=$(totId);
+      const recalc=()=>{ tot.value = fmt(toNum(q.value)*toNum(p.value)); updateTotals(); };
+      q.addEventListener('input', recalc); p.addEventListener('input', recalc);
+      recalc();
+    }
+
+    function updateTotals(){
+      $('lobster_total').value = fmt(toNum($('lobster_qty').value)*toNum($('lobster_price').value));
+      $('conch_total').value = fmt(toNum($('conch_qty').value)*toNum($('conch_price').value));
+      $('finfish_total').value = fmt(toNum($('finfish_qty').value)*toNum($('finfish_price').value));
+      $('otherfish_total').value = fmt(toNum($('otherfish_qty').value)*toNum($('otherfish_price').value));
+    }
+
+    function gather(){
+      updateTotals();
+      return {
+        start: $('start').value, end: $('end').value, area: $('area').value || '',
+        fuel: toNum($('fuel').value), gear: toNum($('gear').value), assistants: toNum($('assistants').value), other: toNum($('other').value),
+        lobster_qty: toNum($('lobster_qty').value), lobster_price: toNum($('lobster_price').value), lobster_total: toNum($('lobster_total').value),
+        conch_qty: toNum($('conch_qty').value), conch_price: toNum($('conch_price').value), conch_total: toNum($('conch_total').value),
+        finfish_qty: toNum($('finfish_qty').value), finfish_price: toNum($('finfish_price').value), finfish_total: toNum($('finfish_total').value),
+        otherfish_qty: toNum($('otherfish_qty').value), otherfish_price: toNum($('otherfish_price').value), otherfish_total: toNum($('otherfish_total').value),
+      };
+    }
+
+    function calculate(){
+      const d=gather();
+      const costs = d.fuel + d.gear + d.assistants + d.other;
+      const sales = d.lobster_total + d.conch_total + d.finfish_total + d.otherfish_total;
+      const profit = sales - costs;
+      d.profit = profit;
+
+      const res=$('result');
+      res.textContent = `Profit/Loss: $${fmt(profit)}`;
+      res.classList.remove('muted','profit','loss');
+      res.classList.add(profit>=0?'profit':'loss');
+      return { costs, sales, profit, ...d };
+    }
+
+    function clearForm(){
+      ['start','end','area','fuel','gear','assistants','other',
+       'lobster_qty','lobster_price','lobster_total',
+       'conch_qty','conch_price','conch_total',
+       'finfish_qty','finfish_price','finfish_total',
+       'otherfish_qty','otherfish_price','otherfish_total'].forEach(id=>{
+        const el=$(id); if(!el) return;
+        if (el.tagName==='SELECT') el.selectedIndex=0; else el.value='';
+      });
+      $('result').textContent = i18n[$('langSel').value].calc_hint;
+      $('result').className='result muted';
+    }
+
+    // Trip Log (localStorage)
+    const LOG_KEY='tasa_trips_v1';
+    function loadLog(){ try { return JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); } catch(e){ return []; } }
+    function saveLog(arr){ localStorage.setItem(LOG_KEY, JSON.stringify(arr)); }
+    function addToLog(entry){ const arr=loadLog(); arr.unshift(entry); saveLog(arr); renderLog(); }
+    function deleteFromLog(idx){ const arr=loadLog(); arr.splice(idx,1); saveLog(arr); renderLog(); }
+    function renderLog(){
+      const tbody=$('logTable').querySelector('tbody'); tbody.innerHTML='';
+      const arr=loadLog();
+      const lang=$('langSel').value, t=i18n[lang];
+      arr.forEach((e,idx)=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td class="nowrap">${e.start||''} → ${e.end||''}</td>
+          <td>${e.area||''}</td>
+          <td>$${fmt(e.costs)}</td>
+          <td>$${fmt(e.sales)}</td>
+          <td style="color:${e.profit>=0?'var(--profit)':'var(--loss)'}">$${fmt(e.profit)}</td>
+          <td>
+            <button class="secondary" data-load="${idx}" style="width:auto;padding:8px 10px;margin-right:6px">${t.view}</button>
+            <button class="secondary" data-del="${idx}" style="width:auto;padding:8px 10px">${t.del}</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+      tbody.querySelectorAll('button[data-del]').forEach(b=>b.addEventListener('click', e=>deleteFromLog(Number(b.dataset.del))));
+      tbody.querySelectorAll('button[data-load]').forEach(b=>b.addEventListener('click', e=>loadEntry(Number(b.dataset.load))));
+    }
+    function loadEntry(idx){
+      const e=loadLog()[idx]; if(!e) return;
+      ['start','end'].forEach(id=>$(id).value=e[id]||'');
+      $('area').value=e.area||'';
+      $('fuel').value=e.fuel; $('gear').value=e.gear; $('assistants').value=e.assistants; $('other').value=e.other;
+      $('lobster_qty').value=e.lobster_qty; $('lobster_price').value=e.lobster_price; $('lobster_total').value=fmt(e.lobster_total);
+      $('conch_qty').value=e.conch_qty; $('conch_price').value=e.conch_price; $('conch_total').value=fmt(e.conch_total);
+      $('finfish_qty').value=e.finfish_qty; $('finfish_price').value=e.finfish_price; $('finfish_total').value=fmt(e.finfish_total);
+      $('otherfish_qty').value=e.otherfish_qty; $('otherfish_price').value=e.otherfish_price; $('otherfish_total').value=fmt(e.otherfish_total);
+      calculate();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function toCSV(d){
+      const headers=['Start','Return','Managed Access','Fuel','Gear','Assistants','Other costs',
+      'Lobster qty','Lobster price','Lobster total','Conch qty','Conch price','Conch total',
+      'Fin fish qty','Fin fish price','Fin fish total','Other fish qty','Other fish price','Other fish total',
+      'Total Costs','Total Sales','Profit/Loss'];
+      const costs=d.fuel+d.gear+d.assistants+d.other;
+      const sales=d.lobster_total+d.conch_total+d.finfish_total+d.otherfish_total;
+      const row=[d.start,d.end,d.area,d.fuel,d.gear,d.assistants,d.other,
+        d.lobster_qty,d.lobster_price,d.lobster_total,
+        d.conch_qty,d.conch_price,d.conch_total,
+        d.finfish_qty,d.finfish_price,d.finfish_total,
+        d.otherfish_qty,d.otherfish_price,d.otherfish_total,
+        costs,sales,d.profit];
+      return headers.join(',')+'\n'+row.join(',');
+    }
+
+    function downloadCSV(d){
+      const csv=toCSV(d);
+      const blob=new Blob([csv],{type:'text/csv'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download='fishing_trip.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function submitData(){
+      const d=calculate();
+      const csvText=toCSV(d);
+      const file=new File([csvText],'fishing_trip.csv',{type:'text/csv'});
+      try{
+        if(navigator.canShare && navigator.canShare({files:[file]})){
+          await navigator.share({files:[file], title:'Fishing Trip Data', text:'Please send to development@tasabelize.com.'});
+          return;
+        }
+      }catch(e){ console.warn('Share failed', e); }
+      const subject=encodeURIComponent('Fishing Trip Data (CSV)');
+      const body=encodeURIComponent(csvText+'\n\nSend to: development@tasabelize.com');
+      window.location.href=`mailto:development@tasabelize.com?subject=${subject}&body=${body}`;
+      downloadCSV(d);
+      alert('Your email app opened with the data in the message. If an attachment is required, attach the downloaded CSV to send to development@tasabelize.com.');
+    }
+
+    function saveTrip(){
+      const d=calculate();
+      const entry={...d, costs:d.fuel+d.gear+d.assistants+d.other, sales:d.lobster_total+d.conch_total+d.finfish_total+d.otherfish_total, ts:Date.now()};
+      addToLog(entry);
+      alert('Trip saved locally.');
+    }
+
+    function exportLogCSV(){
+      const arr=loadLog();
+      const headers=['Start','Return','Managed Access','Fuel','Gear','Assistants','Other costs',
+        'Lobster qty','Lobster price','Lobster total','Conch qty','Conch price','Conch total',
+        'Fin fish qty','Fin fish price','Fin fish total','Other fish qty','Other fish price','Other fish total',
+        'Total Costs','Total Sales','Profit/Loss'];
+      const rows=arr.map(d=>[d.start,d.end,d.area,d.fuel,d.gear,d.assistants,d.other,
+        d.lobster_qty,d.lobster_price,d.lobster_total,
+        d.conch_qty,d.conch_price,d.conch_total,
+        d.finfish_qty,d.finfish_price,d.finfish_total,
+        d.otherfish_qty,d.otherfish_price,d.otherfish_total,
+        d.costs,d.sales,d.profit].join(','));
+      const csv=[headers.join(','), ...rows].join('\n');
+      const blob=new Blob([csv],{type:'text/csv'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download='trip_log.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearLog(){ if(confirm('Clear all saved trips on this device?')){ saveLog([]); renderLog(); } }
+
+    // PDF/JPEG
+    async function savePDF(){
+      const { jsPDF }=window.jspdf; const doc=new jsPDF(); const d=calculate();
+      let y=12; doc.setFontSize(14); doc.text('Fishing Trip Report',14,y); y+=8; doc.setFontSize(11);
+      const lines=[
+        `Start: ${d.start||'-'}  Return: ${d.end||'-'}  Area: ${d.area||'-'}`,
+        `Fuel: $${fmt(d.fuel)}  Gear: $${fmt(d.gear)}  Assistants: $${fmt(d.assistants)}  Other: $${fmt(d.other)}`,
+        `Lobster: ${fmt(d.lobster_qty)} x $${fmt(d.lobster_price)} = $${fmt(d.lobster_total)}`,
+        `Conch: ${fmt(d.conch_qty)} x $${fmt(d.conch_price)} = $${fmt(d.conch_total)}`,
+        `Fin fish: ${fmt(d.finfish_qty)} x $${fmt(d.finfish_price)} = $${fmt(d.finfish_total)}`,
+        `Other fish: ${fmt(d.otherfish_qty)} x $${fmt(d.otherfish_price)} = $${fmt(d.otherfish_total)}`,
+        `Total Costs: $${fmt(d.fuel+d.gear+d.assistants+d.other)}`,
+        `Total Sales: $${fmt(d.lobster_total+d.conch_total+d.finfish_total+d.otherfish_total)}`,
+        `Profit/Loss: $${fmt(d.profit)}`
+      ];
+      lines.forEach(line=>{ doc.text(line,14,y); y+=7; }); doc.save('fishing_report.pdf');
+    }
+    async function saveJPEG(){
+      const dataUrl=await htmlToImage.toJpeg(document.body,{quality:0.95, pixelRatio:2});
+      const a=document.createElement('a'); a.href=dataUrl; a.download='fishing_report.jpeg'; a.click();
+    }
+
+    // Events
+    $('calcBtn').addEventListener('click', calculate);
+    $('clearBtn').addEventListener('click', clearForm);
+    $('pdfBtn').addEventListener('click', savePDF);
+    $('jpegBtn').addEventListener('click', saveJPEG);
+    $('csvBtn').addEventListener('click', ()=>downloadCSV(calculate()));
+    $('submitBtn').addEventListener('click', submitData);
+    $('saveTripBtn').addEventListener('click', saveTrip);
+    $('exportLogBtn').addEventListener('click', exportLogCSV);
+    $('clearLogBtn').addEventListener('click', clearLog);
+
+    // per-species calculators
+    bindCalcPair('lobster_qty','lobster_price','lobster_total');
+    bindCalcPair('conch_qty','conch_price','conch_total');
+    bindCalcPair('finfish_qty','finfish_price','finfish_total');
+    bindCalcPair('otherfish_qty','otherfish_price','otherfish_total');
+
+    // lang selector
+    const langSel=$('langSel');
+    const savedLang=localStorage.getItem('tasa_lang')||'en';
+    langSel.value=savedLang; setLang(savedLang);
+    langSel.addEventListener('change', e=>{ localStorage.setItem('tasa_lang', langSel.value); setLang(langSel.value); });
+
+    // Render log at start
+    renderLog();
+
+    // PWA
+    if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js'); }
+  </script>
+</body>
+</html>
